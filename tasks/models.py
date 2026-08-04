@@ -1,4 +1,3 @@
-from django.utils import choices
 from django.db import models
 from django.conf import settings
 from projects.models import Project
