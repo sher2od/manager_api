@@ -122,11 +122,3 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 
-
-
-
-
-
-
-
-

@@ -3,13 +3,6 @@ from tasks.models import Task
 
 
 class IsTaskRelatedUser(permissions.BasePermission):
-    """
-    Comment yaratish uchun foydalanuvchi vazifaga aloqador bo'lishi kerak:
-    - Task assignee (vazifa tayinlangan xodim)
-    - Task creator (vazifani yaratgan shaxs)
-    - Project manager (loyiha menejeri)
-    - Admin / Superuser (har doim ruxsat)
-    """
     message = "Siz ushbu vazifaga izoh yozish huquqiga ega emassiz."
 
     def has_permission(self, request, view):
@@ -46,9 +39,6 @@ class IsTaskRelatedUser(permissions.BasePermission):
 
 
 class IsCommentOwnerOrAdmin(permissions.BasePermission):
-    """
-    Izohni faqat muallifi, Admin yoki Loyiha menejeri tahrirlashi/o'chirishi mumkin.
-    """
     message = "Faqat o'zingiz yozgan izohni tahrirlashingiz yoki o'chirishingiz mumkin."
 
     def has_object_permission(self, request, view, obj):

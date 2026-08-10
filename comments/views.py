@@ -8,12 +8,6 @@ from .permissions import IsTaskRelatedUser, IsCommentOwnerOrAdmin
 
 @extend_schema(tags=['Comments'])
 class CommentViewSet(viewsets.ModelViewSet):
-    """
-    Izohlar uchun CRUD ViewSet:
-    - Admin: barcha izohlarni ko'radi va boshqaradi.
-    - Manager: o'z loyihalaridagi yoki o'zi yaratgan vazifalar izohlarini ko'radi.
-    - Employee: o'ziga biriktirilgan vazifalar izohlarini ko'radi va tahrirlaydi.
-    """
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated, IsTaskRelatedUser, IsCommentOwnerOrAdmin]
 
@@ -39,7 +33,6 @@ class CommentViewSet(viewsets.ModelViewSet):
                 author=user
             )
 
-        # Employee — faqat o'ziga aloqador task izohlari (IDOR va Data Leakage himoyasi)
         return Comment.objects.select_related('author', 'task').filter(
             task__assignee=user
         ) | Comment.objects.filter(
@@ -48,7 +41,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=user
         )
 
-    def perform_create(self, serializer):
-        # Izoh muallifini avtomatik joriy foydalanuvchiga biriktirish (Impersonation himoyasi)
+    def perform_create(self, serializer): 
         serializer.save(author=self.request.user)
 

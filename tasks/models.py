@@ -67,7 +67,6 @@ class Task(models.Model):
 
     def clean(self):
         super().clean()
-        # Mantiqiy tekshiruv: deadline o'tib ketgan vaqt bo'lishi mumkin emas (yangi yaratilayotganda)
         if self.pk is None and self.deadline and self.deadline < timezone.now():
             raise ValidationError({'deadline': "Vazifa muddati (deadline) o'tib ketgan vaqt bo'lishi mumkin emas."})
 

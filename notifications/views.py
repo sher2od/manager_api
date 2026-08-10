@@ -10,10 +10,6 @@ from .permissions import IsNotificationOwner
 
 @extend_schema(tags=['Notifications'])
 class NotificationViewSet(viewsets.ModelViewSet):
-    """
-    Foydalanuvchi bildirishnomalari uchun ViewSet.
-    Faqat tizimga kirgan foydalanuvchiga tegishli bildirishnomalarni ko'rsatadi (IDOR himoyasi).
-    """
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated, IsNotificationOwner]
     http_method_names = ['get', 'patch', 'post', 'delete', 'head', 'options']
@@ -29,7 +25,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Notification.objects.select_related('user').filter(user=user)
 
     def perform_create(self, serializer):
-        # Notificationlar asosan backend tomonidan yaratiladi
         serializer.save(user=self.request.user)
 
     @extend_schema(
@@ -38,7 +33,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
     )
     @action(detail=True, methods=['post'], url_path='mark-as-read')
     def mark_as_read(self, request, pk=None):
-        """Alohida bitta bildirishnomani o'qilgan deb belgilash"""
         notification = self.get_object()
         notification.is_read = True
         notification.save()
@@ -53,7 +47,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['post'], url_path='mark-all-read')
     def mark_all_read(self, request):
-        """Foydalanuvchining barcha bildirishnomalarini o'qilgan deb belgilash"""
         notifications = self.get_queryset().filter(is_read=False)
         updated_count = notifications.update(is_read=True)
         return Response(
