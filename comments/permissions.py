@@ -4,13 +4,13 @@ from tasks.models import Task
 
 class IsTaskRelatedUser(permissions.BasePermission):
     """
-    Comment yozish uchun foydalanuvchi taskga aloqador bo'lishi kerak:
-    - Task assignee (vazifa tayinlangan odam)
-    - Task creator (vazifani yaratgan odam)
+    Comment yaratish uchun foydalanuvchi vazifaga aloqador bo'lishi kerak:
+    - Task assignee (vazifa tayinlangan xodim)
+    - Task creator (vazifani yaratgan shaxs)
     - Project manager (loyiha menejeri)
-    - Admin (har doim ruxsat)
+    - Admin / Superuser (har doim ruxsat)
     """
-    message = "Sizda ushbu harakatni bajarish uchun ruxsat yo'q."
+    message = "Siz ushbu vazifaga izoh yozish huquqiga ega emassiz."
 
     def has_permission(self, request, view):
         user = request.user
@@ -18,15 +18,13 @@ class IsTaskRelatedUser(permissions.BasePermission):
         if not user or not user.is_authenticated:
             return False
 
-        # Admin har doim ruxsat
-        if user.role == 'admin':
+        # Admin har doim ruxsat oladi
+        if user.role == 'admin' or user.is_superuser:
             return True
 
-        # GET (list) uchun ruxsat
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # POST (comment yaratish) uchun task_id ni tekshiramiz
         if request.method == 'POST':
             task_id = request.data.get('task')
             if not task_id:
@@ -34,14 +32,14 @@ class IsTaskRelatedUser(permissions.BasePermission):
 
             try:
                 task = Task.objects.select_related('project').get(id=task_id)
-            except Task.DoesNotExist:
+            except (Task.DoesNotExist, ValueError, TypeError):
                 self.message = "Vazifa topilmadi."
                 return False
 
             return (
-                task.assignee == user          # vazifa tayinlangan odam
-                or task.creator == user         # vazifani yaratgan odam
-                or task.project.manager == user # loyiha menejeri
+                task.assignee == user
+                or task.creator == user
+                or task.project.manager == user
             )
 
         return True
@@ -49,7 +47,7 @@ class IsTaskRelatedUser(permissions.BasePermission):
 
 class IsCommentOwnerOrAdmin(permissions.BasePermission):
     """
-    Comment'ni faqat o'zi yozgan foydalanuvchi yoki Admin tahrirlashi/o'chirishi mumkin.
+    Izohni faqat muallifi, Admin yoki Loyiha menejeri tahrirlashi/o'chirishi mumkin.
     """
     message = "Faqat o'zingiz yozgan izohni tahrirlashingiz yoki o'chirishingiz mumkin."
 
@@ -57,7 +55,11 @@ class IsCommentOwnerOrAdmin(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
+        user = request.user
         return (
-            obj.author == request.user
-            or request.user.role == 'admin'
+            obj.author == user
+            or user.role == 'admin'
+            or user.is_superuser
+            or (user.role == 'manager' and obj.task.project.manager == user)
         )
+

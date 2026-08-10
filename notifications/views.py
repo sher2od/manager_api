@@ -5,32 +5,32 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .models import Notification
 from .serializers import NotificationSerializer
+from .permissions import IsNotificationOwner
 
 
 @extend_schema(tags=['Notifications'])
 class NotificationViewSet(viewsets.ModelViewSet):
     """
     Foydalanuvchi bildirishnomalari uchun ViewSet.
-    Faqat tizimga kirgan foydalanuvchiga tegishli bildirishnomalarni ko'rsatadi.
+    Faqat tizimga kirgan foydalanuvchiga tegishli bildirishnomalarni ko'rsatadi (IDOR himoyasi).
     """
     serializer_class = NotificationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsNotificationOwner]
+    http_method_names = ['get', 'patch', 'post', 'delete', 'head', 'options']
 
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
             return Notification.objects.none()
 
         user = self.request.user
-        if user.role == 'admin':
-            return Notification.objects.all().order_by('-created_at')
+        if user.role == 'admin' or user.is_superuser:
+            return Notification.objects.select_related('user').all()
 
-        return Notification.objects.filter(user=user).order_by('-created_at')
+        return Notification.objects.select_related('user').filter(user=user)
 
     def perform_create(self, serializer):
-        if 'user' not in serializer.validated_data:
-            serializer.save(user=self.request.user)
-        else:
-            serializer.save()
+        # Notificationlar asosan backend tomonidan yaratiladi
+        serializer.save(user=self.request.user)
 
     @extend_schema(
         request=None,
@@ -60,3 +60,4 @@ class NotificationViewSet(viewsets.ModelViewSet):
             {"detail": f"{updated_count} ta bildirishnoma o'qilgan deb belgilandi."},
             status=status.HTTP_200_OK
         )
+

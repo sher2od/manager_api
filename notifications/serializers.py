@@ -3,10 +3,17 @@ from .models import Notification
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    user_username = serializers.ReadOnlyField(source='user.username')
+
     class Meta:
         model = Notification
-        fields = '__all__'
-        read_only_fields = ['created_at']
-        extra_kwargs = {
-            'user': {'required': False}
-        }
+        fields = [
+            'id', 'user', 'user_username',
+            'title', 'message', 'notification_type',
+            'is_read', 'created_at'
+        ]
+        read_only_fields = [
+            'id', 'user', 'title', 'message',
+            'notification_type', 'created_at'
+        ]
+

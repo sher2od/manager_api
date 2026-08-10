@@ -1,0 +1,120 @@
+
+============================================================
+  1. SERVER HEALTH CHECK
+============================================================
+  [PASS] Server ishlayapti
+     -> Status: 401
+
+============================================================
+  2. AUTHENTICATION - Ro'yxatdan o'tish va Login
+============================================================
+  [WARN] Admin foydalanuvchi allaqachon mavjud
+     -> {'username': ['A user with that username already exists.'], 'email': ["Bu email oldin ro'xatdan otgan"]}
+  [WARN] Manager foydalanuvchi allaqachon mavjud
+     -> {'username': ['A user with that username already exists.'], 'email': ["Bu email oldin ro'xatdan otgan"]}
+  [WARN] Employee foydalanuvchi allaqachon mavjud
+     -> {'username': ['A user with that username already exists.'], 'email': ["Bu email oldin ro'xatdan otgan"]}
+  [PASS] Noto'g'ri ro'yxatdan o'tish rad etildi (400)
+     -> {'username': ['This field may not be blank.'], 'password': ['This password is too short. It must con
+
+============================================================
+  3. TOKEN - JWT Authentication
+============================================================
+  [PASS] Admin login muvaffaqiyatli
+     -> Token: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+  [PASS] Token javobda username mavjud
+     -> username: test_admin
+  [PASS] Token javobda role mavjud
+     -> role: admin
+  [PASS] Manager login muvaffaqiyatli
+     -> role: manager
+  [PASS] Employee login muvaffaqiyatli
+     -> role: employee
+  [PASS] Noto'g'ri parol bilan login rad etildi (401)
+
+============================================================
+  4. USERS MANAGEMENT
+============================================================
+  [PASS] Foydalanuvchilar ro'yxati (admin)
+     -> Jami: 8
+  [PASS] Employee foydalanuvchilar ro'yxatini ko'ra olmaydi (403)
+  [PASS] Autentifikatsiyasiz so'rov rad etildi (401)
+  [PASS] Manager roli tayinlandi
+     -> {'detail': 'Foydalanuvchi test_manager Manager rolini oldi.'}
+
+============================================================
+  5. PROJECTS - Loyihalar boshqaruvi
+============================================================
+  [PASS] Loyiha yaratildi (manager)
+     -> ID: 9, Title: Test Loyiha
+  [PASS] Loyihalar ro'yxati
+     -> Jami: 1
+  [PASS] Loyiha detail
+     -> Title: Test Loyiha
+  [PASS] Loyiha yangilandi (PATCH)
+     -> Yangi title: Yangilangan Loyiha
+  [PASS] Employee loyiha yarata olmaydi (403)
+
+============================================================
+  6. TASKS - Vazifalar boshqaruvi
+============================================================
+  [PASS] Task yaratildi (manager)
+     -> ID: 9, Title: Test Vazifa
+  [PASS] Tasks ro'yxati (manager - all)
+     -> Jami: 1
+  [PASS] Tasks ro'yxati (employee - assigned only)
+     -> Jami: 1
+  [PASS] Employee task yarata olmaydi (403)
+  [PASS] Task status yangilandi
+     -> Yangi status: in_progress
+  [PASS] Task detail
+     -> Title: Test Vazifa, Status: in_progress
+
+============================================================
+  7. COMMENTS - Izohlar
+============================================================
+  [PASS] Izoh yozildi (employee)
+     -> ID: 17
+  [PASS] Izoh yozildi (manager)
+     -> ID: 18
+  [PASS] Izohlar ro'yxati
+     -> Jami: 2
+  [PASS] Izoh detail
+     -> Content: Bu test izoh - Employee tomonidan
+  [PASS] Autentifikatsiyasiz izoh rad etildi (401)
+
+============================================================
+  8. API DOCUMENTATION
+============================================================
+  [PASS] OpenAPI Schema mavjud
+     -> Status: 200
+  [PASS] Swagger UI mavjud
+     -> Status: 200
+
+============================================================
+  9. EDGE CASES - Chegaraviy holatlar
+============================================================
+  [PASS] Mavjud bo'lmagan endpoint 404 qaytaradi
+  [PASS] Mavjud bo'lmagan task ID 404 qaytaradi
+  [PASS] Noto'g'ri ma'lumot bilan task yaratish rad etildi (400)
+
+============================================================
+  10. DELETE OPERATIONS
+============================================================
+  [PASS] Izoh o'chirildi (DELETE)
+  [PASS] Task o'chirildi (DELETE)
+  [PASS] Loyiha o'chirildi (DELETE)
+
+============================================================
+  UMUMIY NATIJA
+============================================================
+
+  [PASS] Muvaffaqiyatli: 36
+  [FAIL] Muvaffaqiyatsiz: 0
+  [WARN] Ogohlantirish: 3
+  [TOTAL] Jami testlar: 39
+
+  Natija: BARCHA TESTLAR OTDI!
+
+============================================================
+

@@ -1,8 +1,5 @@
-from uuid import RESERVED_FUTURE
-from django.db import reset_queries
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from .managers import CustomUserManager
 
 
@@ -12,9 +9,8 @@ class CustomUser(AbstractUser):
         MANAGER = 'manager', 'Manager'
         EMPLOYEE = 'employee', 'Employee'
 
-    
     role = models.CharField(
-        max_length=50,
+        max_length=20,
         choices=Role.choices,
         default=Role.EMPLOYEE,
         db_index=True
@@ -30,41 +26,10 @@ class CustomUser(AbstractUser):
     def is_manager(self) -> bool:
         return self.role == self.Role.MANAGER
 
-    @property 
+    @property
     def is_employee(self) -> bool:
         return self.role == self.Role.EMPLOYEE
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __str__(self):
+        return f"{self.username} ({self.role})"
 
